@@ -3,7 +3,7 @@
 #include "FPSAIGuard.h"
 #include "Perception/PawnSensingComponent.h"
 #include "DrawDebugHelpers.h"
-
+#include "FPSGameMode.h"
 // Sets default values
 AFPSAIGuard::AFPSAIGuard()
 {
@@ -19,7 +19,7 @@ AFPSAIGuard::AFPSAIGuard()
 void AFPSAIGuard::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	OriginalRotation = GetActorRotation();
 }
 
 void AFPSAIGuard::OnSeePawn(APawn * Pawn)
@@ -28,6 +28,12 @@ void AFPSAIGuard::OnSeePawn(APawn * Pawn)
 	if (Pawn == nullptr)
 		return;
 	DrawDebugSphere(GetWorld(), Pawn->GetActorLocation(), 32.0f, 12, FColor::Yellow, false, 10.0f);
+
+	AFPSGameMode* GM = Cast<AFPSGameMode>(GetWorld()->GetAuthGameMode());
+	if (GM)
+	{
+		GM->CompleteMission(Pawn, false);
+	}
 }
 
 void AFPSAIGuard::OnNoiseHeard(APawn * NoiseInstigator, const FVector & Location, float Volume)
@@ -36,6 +42,28 @@ void AFPSAIGuard::OnNoiseHeard(APawn * NoiseInstigator, const FVector & Location
 		return;
 	DrawDebugSphere(GetWorld(), Location, 32.0f, 12, FColor::Green, false, 10.0f);
 
+	FVector Dir = Location - GetActorLocation();
+	Dir.Normalize();
+
+	FRotator NewLookAt = FRotationMatrix::MakeFromX(Dir).Rotator();
+	NewLookAt.Pitch = 0;
+	NewLookAt.Roll = 0;
+	SetActorRotation(NewLookAt);
+
+	GetWorldTimerManager().ClearTimer(TimerHandle_ResetOrientation);
+	GetWorldTimerManager().SetTimer(TimerHandle_ResetOrientation, this, &AFPSAIGuard::ResetOrientation, 3.0f);
+}
+
+void AFPSAIGuard::ResetOrientation()
+{
+	SetActorRotation(OriginalRotation);
+}
+
+void AFPSAIGuard::SetGuardState(EAIState NewState)
+{
+	if (NewState == GuardState)
+		return;
+	GuardState = NewState;
 }
 
 // Called every frame

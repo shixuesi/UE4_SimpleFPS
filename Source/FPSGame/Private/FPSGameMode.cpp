@@ -15,7 +15,7 @@ AFPSGameMode::AFPSGameMode()
 	HUDClass = AFPSHUD::StaticClass();
 }
 
-void AFPSGameMode::CompleteMission(APawn* InstigatorPawn)
+void AFPSGameMode::CompleteMission(APawn* InstigatorPawn,bool MissionSuccess)
 {
 	if (InstigatorPawn)
 	{
@@ -41,7 +41,7 @@ void AFPSGameMode::CompleteMission(APawn* InstigatorPawn)
 			UE_LOG(LogTemp,Warning,TEXT("SpectatingViewpointClass is nullptr!"))
 		}
 	}
-	OnMissionComplete(InstigatorPawn);
+	OnMissionComplete(InstigatorPawn, MissionSuccess);
 
 
 }

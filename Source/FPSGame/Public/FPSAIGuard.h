@@ -8,6 +8,11 @@
 
 class UPawnSensingComponent;
 
+UENUM(BlueprintType)
+
+enum class EAIState :uint8 {
+		Idle,Suspicious,Alerted
+};
 UCLASS()
 class FPSGAME_API AFPSAIGuard : public ACharacter
 {
@@ -29,6 +34,17 @@ protected:
 
 	UFUNCTION()
 	void OnNoiseHeard(APawn* NoiseInstigator, const FVector& Location, float Volume);
+
+	FRotator OriginalRotation;
+	FTimerHandle TimerHandle_ResetOrientation;
+	void ResetOrientation();
+
+	EAIState GuardState;
+
+	void SetGuardState(EAIState NewState);
+
+	UFUNCTION(BlueprintImplementableEvent,Category = "AI")
+	void OnStateChangedvoid(EAIState NewState);
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
