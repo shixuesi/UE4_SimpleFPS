@@ -47,8 +47,21 @@ void AFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 }
 
+void AFPSCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
 
-void AFPSCharacter::Fire()
+	if (!IsLocallyControlled())
+	{
+		FRotator NewRot = CameraComponent->RelativeRotation;
+
+		NewRot.Pitch = RemoteViewPitch * 360.0f /255.0f;
+		CameraComponent->SetRelativeRotation(NewRot);
+	}
+}
+
+
+void AFPSCharacter::SeverFire_Implementation()
 {
 	// try and fire a projectile
 	if (ProjectileClass)
@@ -63,7 +76,16 @@ void AFPSCharacter::Fire()
 		// spawn the projectile at the muzzle
 		GetWorld()->SpawnActor<AFPSProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, ActorSpawnParams);
 	}
+}
 
+bool AFPSCharacter::SeverFire_Validate()
+{
+	return true;
+}
+void AFPSCharacter::Fire()
+{
+	
+	SeverFire();
 	// try and play the sound if specified
 	if (FireSound)
 	{
