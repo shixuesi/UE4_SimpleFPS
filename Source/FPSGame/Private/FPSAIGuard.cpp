@@ -4,6 +4,7 @@
 #include "Perception/PawnSensingComponent.h"
 #include "DrawDebugHelpers.h"
 #include "FPSGameMode.h"
+#include "Net/UnrealNetwork.h"
 // Sets default values
 AFPSAIGuard::AFPSAIGuard()
 {
@@ -72,7 +73,12 @@ void AFPSAIGuard::SetGuardState(EAIState NewState)
 {
 	if (NewState == GuardState)
 		return;
-	GuardState = NewState;
+	GuardState = NewState;//GuardState 被赋值修改后 会自动调用 OnRep_GuardState
+	OnRep_GuardState();
+}
+
+void AFPSAIGuard::OnRep_GuardState()
+{
 	OnStateChanged(GuardState);
 }
 
@@ -83,5 +89,10 @@ void AFPSAIGuard::Tick(float DeltaTime)
 
 }
 
+void AFPSAIGuard::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME(AFPSAIGuard, GuardState);
+}
 
