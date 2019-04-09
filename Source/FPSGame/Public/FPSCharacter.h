@@ -51,7 +51,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
 		UAnimSequence* FireAnimation;
 
-	UPROPERTY(BluePrintReadOnly, Category = "Gameplay")
+	UPROPERTY(Replicated,BluePrintReadOnly, Category = "Gameplay")
 		bool bIsCarryingObjective;
 protected:
 
@@ -66,6 +66,8 @@ protected:
 
 	/** Handles strafing movement, left and right */
 	void MoveRight(float Val);
+
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 
